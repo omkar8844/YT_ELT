@@ -1,2 +1,3 @@
 venvyt/
 __pycache__/
+.env
