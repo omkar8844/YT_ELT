@@ -4,12 +4,12 @@ import json
 from datetime import date
 from dotenv import load_dotenv
 load_dotenv(dotenv_path="./.env")
-api_key=os.getenv("api_key")
+API_KEY=os.getenv("API_KEY")
 channel_handle="MrBeast"
 max_results=50
 def get_playlist_id():
     try:
-        url=f'https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={channel_handle}&key={api_key}'
+        url=f'https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={channel_handle}&key={API_KEY}'
         response=requests.get(url)
 
         response.raise_for_status()
@@ -26,7 +26,7 @@ def get_playlist_id():
 def get_video_ids(playlisId):
     video_ids=[]
     pageToken=None
-    base_url=f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults={max_results}&playlistId={playlistId}&key={api_key}"
+    base_url=f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults={max_results}&playlistId={playlistId}&key={API_KEY}"
 
     try:
         while True:
@@ -61,7 +61,7 @@ def extract_video_data(video_ids):
     try:
         for batch in batch_list(video_ids,max_results):
             video_ids_str=",".join(batch)
-            url=f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id={video_ids_str}&key={api_key}"
+            url=f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id={video_ids_str}&key={API_KEY}"
             response=requests.get(url)
             response.raise_for_status()
             data=response.json()
