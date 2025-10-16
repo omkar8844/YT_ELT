@@ -1,10 +1,18 @@
 from airflow import DAG
-import pendulum 
+import pendulum
 from datetime import datetime, timedelta
-from api.video_stats import get_playlist_id, get_video_ids, extract_video_data, save_to_json
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
-local_tz=pendulum.timezone('Asia/Kolkata')
+from api.video_stats import (
+    get_playlist_id,
+    get_video_ids,
+    extract_video_data,
+    save_to_json,
+)
+# Define the local timezone
+local_tz = pendulum.timezone("Asia/Kolkata")
 
+# Default Args
 default_args = {
     "owner": "dataengineers",
     "depends_on_past": False,
@@ -19,18 +27,24 @@ default_args = {
     # 'end_date': datetime(2030, 12, 31, tzinfo=local_tz),
 }
 
+# Variables
+staging_schema = "staging"
+core_schema = "core"
+
+# DAG 1: produce_json
 with DAG(
-    dag_id='produce_json',
+    dag_id="produce_json",
     default_args=default_args,
-    description='DAG to produce json file with raw data',
-    schedule='0 14 * * *',
-    catchup=False
-) as dag:
-    #Define task
-    playlist_id=get_playlist_id()
-    video_ids=get_video_ids(playlist_id)
-    extract_data=extract_video_data(video_ids=video_ids)
-    save_to_json_task=save_to_json(extract_data)
-    
-    #dependency
+    description="DAG to produce JSON file with raw data",
+    schedule="0 14 * * *",
+    catchup=False,
+) as dag_produce:
+
+    # Define tasks
+    playlist_id = get_playlist_id()
+    video_ids = get_video_ids(playlist_id)
+    extract_data = extract_video_data(video_ids)
+    save_to_json_task = save_to_json(extract_data)
+
+    # Define dependencies
     playlist_id >> video_ids >> extract_data >> save_to_json_task
