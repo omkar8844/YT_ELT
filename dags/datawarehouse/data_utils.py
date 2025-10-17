@@ -15,7 +15,7 @@ def close_conn_cursor(conn,cur):
     conn.close()
 
 def create_schema(schema):
-    conn, cur= get_conn_cusrsor()
+    conn, cur= get_conn_cursor()
 
     schema_sql=f"CREATE SCHEMA IF NOT EXISTS {schema};"
     
@@ -26,7 +26,7 @@ def create_schema(schema):
     close_conn_cursor(conn,cur)
 
 def create_table(schema):
-    conn, cur= get_conn_cusrsor()
+    conn, cur= get_conn_cursor()
 
     if schema=='staging':
         table_sql=f"""
@@ -53,7 +53,7 @@ def create_table(schema):
                       "Comments_Count" INT    
                   ); 
               """
-    cur.execute(table_sql)
+    cur.execute(table_sql)  
 
     conn.commit()
 
@@ -61,8 +61,8 @@ def create_table(schema):
 
 def get_video_ids(cur,schema):
 
-    cur.execute(f"""SELECT "Video_ID FROM {schema}.{table};""")
+    cur.execute(f"""SELECT "Video_ID" FROM {schema}.{table};""")
     ids=cur.fetchall()
-    video_ids=[row['video_id'] for row in ids]
+    video_ids=[row['Video_ID'] for row in ids]
     
     return video_ids
