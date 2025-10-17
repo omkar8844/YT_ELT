@@ -2,7 +2,7 @@ from airflow import DAG
 import pendulum
 from datetime import datetime, timedelta
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-
+from datawarehouse.dwh import staging_table, core_table
 from api.video_stats import (
     get_playlist_id,
     get_video_ids,
@@ -48,3 +48,20 @@ with DAG(
 
     # Define dependencies
     playlist_id >> video_ids >> extract_data >> save_to_json_task
+
+
+with DAG(
+    dag_id="update_db",
+    default_args=default_args,
+    description="DAG to Load and Transform",
+    schedule="0 15 * * *",
+    catchup=False,
+) as dag_produce:
+
+    # Define tasks
+    update_satging=staging_table()
+    update_core=core_table()
+
+    # Define dependencies
+    update_satging >> update_core
+
